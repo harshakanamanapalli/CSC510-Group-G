@@ -152,7 +152,7 @@ router.get('/coins/:username', function (req, res) {
 });
 
 router.post('/profile/update', function (req, res) {
-    var query = { "username": req.body.username }//, "emailId":req.body.emailId};
+    var query = { "username": req.body.username };
     User.findOne(query, { "username": true, "emailId": true },
         (err, user) => {
             if (err) {
@@ -160,7 +160,6 @@ router.post('/profile/update', function (req, res) {
             }
             if (user && (req.body.password === user.password)) {  // Search could come back empty, so we should protect against sending nothing back
                 user.password = req.body.newpassword || user.password;
-                //user.emailId = req.body.emailId || user.emailId;
                 user.save((err, user) => {
                     if (err) {
                         res.status(400).send(err)
@@ -174,7 +173,6 @@ router.post('/profile/update', function (req, res) {
             }
         }
     );
-    //res.send('User Profile updated successfully');
 });
 
 router.get('/details/:username', function (req, res) {
@@ -188,7 +186,6 @@ router.get('/details/:username', function (req, res) {
             _(enterprises).forEach(function (enterprise) {
                 enterpriseIds.push({ 'enterpriseId': enterprise.enterpriseId });
             });
-            console.log(enterpriseIds);
 
             var query = {};
             if (enterpriseIds.length != 0) {
@@ -256,47 +253,26 @@ router.post('/search', function (req, res) {
                 _(enterprises).forEach(function (enterprise) {
                     enterpriseIds.push(enterprise.enterpriseId);
                 });
-                
-                console.log(enterpriseIds);
-                console.log(results);
 
-                // var tags = [];
-
-                // _(req.body.tags).forEach(function (tag) {
-                //     tags.push({ 'tag': tag });
-                // });
-
-                // var query = {};
-                // if (!_.isEmpty(tags)) {
-                //     query["$or"] = tags;
-                // }
-
-                // Tag.find(query).distinct('videoId', function (err, results) {
-                //     if (err) {
-                //         res.status(400).send(err);
-                //     } else {
-                        var videoIds = [];
-                        var videoQuery = {};
-                        _(results).forEach(function (result) {
-                            videoIds.push({ 'videoId': result });
-                        });
-                        console.log(videoIds);
-                        videoQuery["$or"] = videoIds;
-                        Video.find(videoQuery, function (err, videos) {
-                            if (err) {
-                                res.status(400).send(err);
-                            } else {
-                                var results = [];
-                                _(videos).forEach(function (video) {
-                                    if (enterpriseIds.indexOf(video.enterpriseId) != -1) {
-                                        results.push(video);
-                                    }
-                                });
-                                res.status(200).send(results);
+                var videoIds = [];
+                var videoQuery = {};
+                _(results).forEach(function (result) {
+                    videoIds.push({ 'videoId': result });
+                });
+                videoQuery["$or"] = videoIds;
+                Video.find(videoQuery, function (err, videos) {
+                    if (err) {
+                        res.status(400).send(err);
+                    } else {
+                        var results = [];
+                        _(videos).forEach(function (video) {
+                            if (enterpriseIds.indexOf(video.enterpriseId) != -1) {
+                                results.push(video);
                             }
                         });
-                //    }
-                //});
+                        res.status(200).send(results);
+                    }
+                });
             }
         });
     });
