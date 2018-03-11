@@ -188,6 +188,7 @@ router.get('/details/:username', function (req, res) {
             _(enterprises).forEach(function (enterprise) {
                 enterpriseIds.push({ 'enterpriseId': enterprise.enterpriseId });
             });
+            console.log(enterpriseIds);
 
             var query = {};
             if (enterpriseIds.length != 0) {
@@ -255,27 +256,31 @@ router.post('/search', function (req, res) {
                 _(enterprises).forEach(function (enterprise) {
                     enterpriseIds.push(enterprise.enterpriseId);
                 });
+                
+                console.log(enterpriseIds);
+                console.log(results);
 
-                var tags = [];
+                // var tags = [];
 
-                _(req.body.tags).forEach(function (tag) {
-                    tags.push({ 'tag': tag });
-                });
+                // _(req.body.tags).forEach(function (tag) {
+                //     tags.push({ 'tag': tag });
+                // });
 
-                var query = {};
-                if (!_.isEmpty(tags)) {
-                    query["$or"] = tags;
-                }
+                // var query = {};
+                // if (!_.isEmpty(tags)) {
+                //     query["$or"] = tags;
+                // }
 
-                Tag.find(query).distinct('videoId', function (err, results) {
-                    if (err) {
-                        res.status(400).send(err);
-                    } else {
+                // Tag.find(query).distinct('videoId', function (err, results) {
+                //     if (err) {
+                //         res.status(400).send(err);
+                //     } else {
                         var videoIds = [];
                         var videoQuery = {};
                         _(results).forEach(function (result) {
                             videoIds.push({ 'videoId': result });
                         });
+                        console.log(videoIds);
                         videoQuery["$or"] = videoIds;
                         Video.find(videoQuery, function (err, videos) {
                             if (err) {
@@ -290,8 +295,8 @@ router.post('/search', function (req, res) {
                                 res.status(200).send(results);
                             }
                         });
-                    }
-                });
+                //    }
+                //});
             }
         });
     });
